@@ -3,8 +3,9 @@ const router = express.Router();
 
 /* GET home page */
 router.get("/", (req, res, next) => {
-  const user = req.session.user;
-  console.log("req.session.user: ", req.session.user);
+  // passport
+  const user = req.user;
+  console.log("req.user: ", req.user);
   res.render("index", { user: user });
 });
 
@@ -12,7 +13,8 @@ router.get("/", (req, res, next) => {
 
 const loginCheck = () => {
   return (req, res, next) => {
-    if (req.session.user) {
+    // if (req.user)
+    if (req.isAuthenticated()) {
       // if user is logged in, proceed to the next function
       next();
     } else {

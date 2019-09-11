@@ -62,7 +62,7 @@ router.post("/signup", (req, res, next) => {
 
       User.create({ username: username, password: hash })
         .then(dbUser => {
-          req.session.user = dbUser;
+          req.login();
           res.redirect("/");
         })
         .catch(err => {
@@ -73,10 +73,9 @@ router.post("/signup", (req, res, next) => {
 });
 
 router.get("/logout", (req, res, next) => {
-  req.session.destroy(err => {
-    if (err) next(err);
-    else res.redirect("/");
-  });
+  // passport
+  req.logout();
+  res.redirect("/");
 });
 
 module.exports = router;
