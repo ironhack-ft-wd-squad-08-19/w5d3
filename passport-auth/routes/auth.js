@@ -10,8 +10,29 @@ router.get("/signup", (req, res) => {
 });
 
 router.get("/login", (req, res) => {
-  res.render("auth/login");
+  res.render("auth/login", { errorMessage: req.flash("error") });
 });
+
+const passport = require("passport");
+
+router.post(
+  "/login",
+  passport.authenticate("local", {
+    successRedirect: "/",
+    failureRedirect: "/auth/login",
+    failureFlash: true
+  })
+);
+
+router.get("/github", passport.authenticate("github"));
+
+router.get(
+  "/github/callback",
+  passport.authenticate("github", {
+    successRedirect: "/",
+    failureRedirect: "/auth/login"
+  })
+);
 
 router.post("/signup", (req, res, next) => {
   //   console.log(req.body);
@@ -47,26 +68,6 @@ router.post("/signup", (req, res, next) => {
         .catch(err => {
           next(err);
         });
-    }
-  });
-});
-
-router.post("/login", (req, res, next) => {
-  const username = req.body.username;
-  const password = req.body.password;
-
-  User.findOne({ username: username }).then(found => {
-    if (found === null) {
-      // no user in the collection has this username
-      res.render("auth/login", { message: "Invalid credentials" });
-      return;
-    }
-    if (bcrypt.compareSync(password, found.password)) {
-      // password and hash match
-      req.session.user = found;
-      res.redirect("/");
-    } else {
-      res.render("auth/login", { message: "Invalid credentials" });
     }
   });
 });

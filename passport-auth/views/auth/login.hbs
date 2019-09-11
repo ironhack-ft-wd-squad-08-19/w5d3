@@ -6,11 +6,12 @@
   <label for="password">Password</label><br />
   <input type="password" name="password" />
 
-  {{#if message}}
-  <div class="error-message">{{message}}</div>
+  {{#if errorMessage}}
+  <div class="error-message">{{errorMessage}}</div>
   {{/if}}
 
   <button type="submit">Log in</button>
 </form>
 
 <a href="/">Home</a>
+<a href="/auth/github">Login via Github</a>

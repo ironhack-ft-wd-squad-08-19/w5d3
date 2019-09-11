@@ -65,24 +65,9 @@ passport.deserializeUser((id, done) => {
     });
 });
 
-/*
-passport.use(new LocalStrategy(
-  function(username, password, done) {
-    User.findOne({ username: username }, function(err, user) {
-      if (err) { return done(err); }
-      if (!user) {
-        return done(null, false, { message: 'Incorrect username.' });
-      }
-      if (!user.validPassword(password)) {
-        return done(null, false, { message: 'Incorrect password.' });
-      }
-      return done(null, user);
-    });
-  }
-));
-*/
-
 const bcrypt = require("bcrypt");
+const flash = require("connect-flash");
+app.use(flash());
 
 passport.use(
   new LocalStrategy((username, password, done) => {
@@ -100,6 +85,36 @@ passport.use(
         done(err, false);
       });
   })
+);
+
+const GithubStrategy = require("passport-github").Strategy;
+
+passport.use(
+  new GithubStrategy(
+    {
+      clientID: process.env.GITHUB_ID,
+      clientSecret: process.env.GITHUB_SECRET,
+      callbackURL: "http://localhost:3000/auth/github/callback"
+    },
+    (accessToken, refreshToken, profile, done) => {
+      // find a user with profile.id as githubId or create one
+      User.findOne({ githubId: profile.id })
+        .then(found => {
+          if (found !== null) {
+            // user with that githubId already exists
+            done(null, found);
+          } else {
+            // no user with that githubId
+            return User.create({ githubId: profile.id }).then(dbUser => {
+              done(null, dbUser);
+            });
+          }
+        })
+        .catch(err => {
+          done(err);
+        });
+    }
+  )
 );
 
 app.use(passport.initialize());
