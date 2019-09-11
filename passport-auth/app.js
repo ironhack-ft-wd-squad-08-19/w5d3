@@ -144,4 +144,7 @@ app.use("/", index);
 const authRoutes = require("./routes/auth");
 app.use("/auth", authRoutes);
 
+const roomsRoutes = require("./routes/rooms");
+app.use("/rooms", roomsRoutes);
+
 module.exports = app;
