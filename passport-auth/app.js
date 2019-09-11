@@ -41,12 +41,69 @@ app.use(
     secret: process.env.SESSION_SECRET,
     cookie: { maxAge: 24 * 60 * 60 },
     saveUninitialized: false,
-    resave: false,
-    store: new MongoStore({
-      mongooseConnection: mongoose.connection
-    })
+    resave: false
   })
 );
+
+const User = require("./models/User");
+const passport = require("passport");
+const LocalStrategy = require("passport-local").Strategy;
+
+// we serialize only the `_id` field of the user to keep the information stored minimum
+passport.serializeUser((user, done) => {
+  done(null, user._id);
+});
+
+// when we need the information for the user, the deserializeUser function is called with the id that we previously serialized to fetch the user from the database
+passport.deserializeUser((id, done) => {
+  User.findById(id)
+    .then(dbUser => {
+      done(null, dbUser);
+    })
+    .catch(err => {
+      done(err);
+    });
+});
+
+/*
+passport.use(new LocalStrategy(
+  function(username, password, done) {
+    User.findOne({ username: username }, function(err, user) {
+      if (err) { return done(err); }
+      if (!user) {
+        return done(null, false, { message: 'Incorrect username.' });
+      }
+      if (!user.validPassword(password)) {
+        return done(null, false, { message: 'Incorrect password.' });
+      }
+      return done(null, user);
+    });
+  }
+));
+*/
+
+const bcrypt = require("bcrypt");
+
+passport.use(
+  new LocalStrategy((username, password, done) => {
+    User.findOne({ username: username })
+      .then(found => {
+        if (found === null) {
+          done(null, false, { message: "No user with such username" });
+        } else if (!bcrypt.compareSync(password, found.password)) {
+          done(null, false, { message: "Wrong password" });
+        } else {
+          done(null, found);
+        }
+      })
+      .catch(err => {
+        done(err, false);
+      });
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Express View engine setup
 

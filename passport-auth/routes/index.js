@@ -17,7 +17,7 @@ const loginCheck = () => {
       next();
     } else {
       // else if user is not logged in, redirect to /login
-      res.redirect("/login");
+      res.redirect("/auth/login");
     }
   };
 };
