@@ -62,8 +62,15 @@ router.post("/signup", (req, res, next) => {
 
       User.create({ username: username, password: hash })
         .then(dbUser => {
-          req.login();
-          res.redirect("/");
+          //   passport.authenticate("local", { successRedirect: "/" })(
+          //     req,
+          //     res,
+          //     next
+          //   );
+          req.login(dbUser, err => {
+            if (err) next(err);
+            else res.redirect("/");
+          });
         })
         .catch(err => {
           next(err);

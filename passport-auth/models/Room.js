@@ -3,6 +3,7 @@ const Schema = mongoose.Schema;
 
 const roomSchema = new Schema({
   price: Number,
+  name: String,
   description: String,
   owner: {
     type: Schema.Types.ObjectId,

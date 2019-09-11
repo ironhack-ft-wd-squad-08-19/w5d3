@@ -6,6 +6,7 @@ const userSchema = new Schema({
   password: String,
   githubId: String,
   role: {
+    type: String,
     enum: ["admin", "user"],
     default: "user"
   }
